@@ -1,8 +1,6 @@
 import * as Y from 'yjs';
 import * as error from 'lib0/error';
 import { createMutex } from 'lib0/mutex';
-import { getFontColorForBackgroundColor } from './getFontColorForBackgroundColor';
-import { transparentize } from 'polished';
 class RelativeSelection {
     constructor(start, end, direction) {
         this.start = start;
@@ -41,7 +39,6 @@ class RemoteCursorWidget {
         const tooltip = (this.tooltip = document.createElement('div'));
         tooltip.className = 'monaco-remote-cursor';
         tooltip.style.background = color;
-        tooltip.style.color = getFontColorForBackgroundColor(color);
         tooltip.style.height = `${lineHeight}px`;
         // uncomment this to show names next to cursor
         tooltip.style.display = 'none';
@@ -149,24 +146,6 @@ export class MonacoBinding {
                             }
                         }
                     });
-                    const cacheKey = Array.from(cursorInformation.keys())
-                        .sort((a, b) => a - b)
-                        .join('_');
-                    if (cacheKey !== lastCacheCursorCache) {
-                        for (const child of styleSheet.childNodes) {
-                            styleSheet.removeChild(child);
-                        }
-                        let cursorStyles = '';
-                        for (const [clientId, color] of cursorInformation) {
-                            cursorStyles += `
-.yRemoteSelectionHead-${clientId}::after { border-color: ${color}; }
-.yRemoteSelectionHead-${clientId} { border-color: ${color}; }
-.yRemoteSelection-${clientId} { background-color: ${transparentize(0.7, color)}; }
-            `;
-                        }
-                        styleSheet.append(document.createTextNode(cursorStyles));
-                        lastCacheCursorCache = cacheKey;
-                    }
                     this._decorations.set(editor, editor.deltaDecorations(currentDecorations, newDecorations));
                     this._collaboratorTooltips.set(editor, tooltips);
                 }

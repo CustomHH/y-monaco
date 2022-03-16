@@ -3,8 +3,6 @@ import * as error from 'lib0/error';
 import { createMutex, mutex } from 'lib0/mutex';
 import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import type { Awareness } from 'y-protocols/awareness';
-import { getFontColorForBackgroundColor } from './getFontColorForBackgroundColor';
-import { transparentize } from 'polished';
 class RelativeSelection {
 	start: Y.RelativePosition;
 	end: Y.RelativePosition;
@@ -89,7 +87,6 @@ class RemoteCursorWidget implements monaco.editor.IContentWidget {
 		const tooltip = (this.tooltip = document.createElement('div'));
 		tooltip.className = 'monaco-remote-cursor';
 		tooltip.style.background = color;
-		tooltip.style.color = getFontColorForBackgroundColor(color);
 		tooltip.style.height = `${lineHeight}px`;
 		// uncomment this to show names next to cursor
 		tooltip.style.display = 'none';
@@ -257,32 +254,6 @@ export class MonacoBinding {
 							}
 						}
 					});
-
-					const cacheKey = Array.from(cursorInformation.keys())
-						.sort((a, b) => a - b)
-						.join('_');
-
-					if (cacheKey !== lastCacheCursorCache) {
-						for (const child of styleSheet.childNodes) {
-							styleSheet.removeChild(child);
-						}
-
-						let cursorStyles = '';
-
-						for (const [clientId, color] of cursorInformation) {
-							cursorStyles += `
-.yRemoteSelectionHead-${clientId}::after { border-color: ${color}; }
-.yRemoteSelectionHead-${clientId} { border-color: ${color}; }
-.yRemoteSelection-${clientId} { background-color: ${transparentize(
-								0.7,
-								color
-							)}; }
-            `;
-						}
-
-						styleSheet.append(document.createTextNode(cursorStyles));
-						lastCacheCursorCache = cacheKey;
-					}
 
 					this._decorations.set(
 						editor,
